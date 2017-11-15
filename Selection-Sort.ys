@@ -79,7 +79,7 @@ je  End
 
 	# INNER LOOP
 	# GOAL: FIND MIN AND RETURN THE ADDRESS SO WE CAN SWAP WITH ADDRESS OF CURRENT POSOTION 
-	# Implemented from Zach's code he showed us in lab.
+	
 	
 InnerLoop:  
         
