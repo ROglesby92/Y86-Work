@@ -1,7 +1,9 @@
-# Ryan Oglesby Assignment 6
-# Selection sort
+# Ryan Oglesby
+# Selection sort ( y86)
+
+
+
 # Execution begins at address 0
-# I REMOVED INDENDATIONS TO MAKE IT EAISER TO FOLLOW ON THE y86 SIMULATOR.
 
 .pos 0
 init: 
@@ -9,7 +11,7 @@ init:
 irmovl Stack, %esp      # Setup stack pointer
 irmovl Stack, %ebp      # Set up base pointer
 call Main               # Execute main program
-						# Finished.
+# Finished.
 halt                    # Terminate program
 .2
 # Allocate an array holding 10 numbers 
