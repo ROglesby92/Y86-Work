@@ -1,0 +1,204 @@
+# Ryan Oglesby Assignment 6
+# Selection sort
+# Execution begins at address 0
+# I REMOVED INDENDATIONS TO MAKE IT EAISER TO FOLLOW ON THE y86 SIMULATOR.
+
+.pos 0
+init: 
+
+irmovl Stack, %esp      # Setup stack pointer
+irmovl Stack, %ebp      # Set up base pointer
+call Main               # Execute main program
+						# Finished.
+halt                    # Terminate program
+.2
+# Allocate an array holding 10 numbers 
+  
+  
+.align 10     #10-byte boundary
+array:  
+
+.long 0x9
+.long 0x3
+.long 0x5
+.long 0x1
+.long 0x3
+.long 0x5
+.long 0x1
+.long 0x3
+.long 0x5
+.long 0x4
+        
+
+# Main function, called first	
+		
+Main:   
+
+pushl %ebp			# push base pointer.
+rrmovl %esp, %ebp	# move stack pointer onto base pointer
+	
+irmovl $10, %eax       # Array size
+pushl %eax            # push the array size onto the stack
+irmovl array, %edx    # %edx = pointer to our Array
+pushl %edx            # push %edx onto the stack
+ 
+call SelectionSort    # --> Call selection sort.
+       
+rrmovl %ebp, %esp    # Restore 
+popl %ebp
+
+ret # GET OUTTA HERE
+         
+# Selection Sort Implementation 
+
+SelectionSort:   
+
+pushl %ebp				
+rrmovl %esp, %ebp
+        
+    
+   
+mrmovl 8(%ebp), %eax   	#	Array pointer       
+mrmovl 12(%ebp), %edx  	#	Length of our array  = 10
+        
+rrmovl %eax, %edi  		# %edi = Our currentPosition, start at Array[0]
+        
+rrmovl %eax, %esi    	# %esi This is our currentMin, start from Array[0] 
+		
+rrmovl %edx, %ebx       # %Ebx = Length of Array     (inner loop)
+		
+irmovl $1, %ecx
+        
+subl %ecx, %ebx         # Set flag, to check if equal. meaning we are done sorting.
+      
+pushl %ebx				# Save our length
+
+je  End      		   
+
+	# INNER LOOP
+	# GOAL: FIND MIN AND RETURN THE ADDRESS SO WE CAN SWAP WITH ADDRESS OF CURRENT POSOTION 
+	# Implemented from Zach's code he showed us in lab.
+	
+InnerLoop:  
+        
+		 
+        
+irmovl $4, %ecx       # move 4 into ecx, used to incrememnt our array.
+addl %ecx, %eax       # Move array to next index
+        
+pushl %eax			  # Backup values ARRAY
+pushl %esi			  # Backup values currentMin 
+		
+		
+mrmovl (%eax), %eax   # move the next element of the array into eax. %eax = array[i+1]
+mrmovl (%esi), %esi   # %esi = currentMin  , lowest element, if first iteration, it will be the first in array (array[0]).
+		
+subl %esi, %eax       # Set condition flag to see if value is greater or not.
+		
+popl %esi             # restore values 
+popl %eax 			  # restore values
+		
+jge dontUpdate        # If the next value is larger than our current min, we dont update so we take this 
+		
+		
+		
+rrmovl %eax, %esi    # If we dont jump then the value at %eax was smaller, so we make it our currentMin.
+		
+		
+# Jump here if the value we found was bigger, meaning we dont need to set it to the new currentMin.
+# Decrement loop counter, jump when not equal.
+		
+dontUpdate:
+irmovl $1, %ecx 
+subl %ecx, %ebx  #decrement the inner loop counter by 1
+			
+			
+jne InnerLoop             #jump to InnerLoop if the inner loop counter != 1
+
+		
+	
+	
+	# Outer Loop	
+	# for ( j = 0 , j< n-1 , j++ ) 
+	# Goal: 
+	# 	Check if our value at our current index is less than the current minimum value in our array.
+	# If it is already smallist, then we do not swap since the smallest register will be a mirror of itself.
+	# if there is a duplicate value then we still will not swap since no point.
+	# So if equal, we jump to NoSwap.
+	
+OuterLoop:  
+	   
+popl %ebx #restore loop incrementer
+	    
+
+pushl %eax  # Save values 
+pushl %esi 
+        
+  
+rrmovl %edi,%eax     # Our pointer to the current position in the array, move into %eax 
+       
+       
+mrmovl (%eax), %ecx  # Curr value held at the pointer 
+mrmovl (%esi), %ebx  # Min value from our pointer %esi
+        
+pushl %ebx  # Store value 
+        
+subl %ecx, %ebx   # Test values 
+        
+popl %ebx		# restore ebx 
+        
+je OuterEnd 	# No swap if same value, saving time. 
+ 
+
+# Call the Swap feature if not equal, we already have the values from each register in 
+# ebx and ecx, so we just need to move them into their counter registers.
+
+		
+		
+		
+Swap:	
+
+rmmovl %ecx, (%esi)  # move curr value to max value position
+rmmovl %ebx, (%eax)  # Move small value into current register position.
+
+
+# SWAPPED THE THINGS!!!
+  
+# OuterEnd 
+# final portion of our outer loop, jumps directly here to avoid swap if values are equal.
+OuterEnd:
+        
+irmovl $4, %ecx       # Move 4 into ecx, to increment our array
+addl %ecx, %eax       # Increment array to next position 
+    
+
+rrmovl %eax, %edi     # Set the current index to our new index.
+rrmovl %eax, %esi     # Set currentMin to the first element in list to prime the loop.
+   
+
+irmovl $1, %ecx       #move 1 into ecx
+subl %ecx, %edx      #decrement the outer loop counter by 1     
+rrmovl %edx, %ebx    # set inner loop to one less as well.  
+subl %ecx, %ebx 	 # Subract 1 from inner loop counter, since we are searching 1 less integer now.
+        
+je End
+  
+call InnerLoop       #Jump when we hit N-1 in list. ( Leftover will be sorted )     
+
+
+
+	
+End:    
+
+rrmovl %ebp, %esp # RESTORE
+popl %ebp
+        
+ret    # RETURN 
+                      
+        
+        
+       
+        
+
+    .pos 0x200
+Stack:
